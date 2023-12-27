@@ -197,7 +197,14 @@ app.get("/user", (req, res) => {
       id: parseInt(id.toString()),
     })
     .then((r) => {
-      res.send(r);
+      res.send(
+        r
+          ? {
+              username: r.username,
+              avatar: r.avatar,
+            }
+          : 404
+      );
     });
 });
 
@@ -230,7 +237,7 @@ app.get("/user/playlists", async (req, res) => {
       playlists: true,
     },
   });
-  res.send(user?.playlists);
+  res.send(user ? user.playlists : 404);
 });
 
 /**
@@ -558,10 +565,15 @@ app.post("/playlist/drop", async (req, res) => {
 app.get("/playlist", async (req, res) => {
   let { playlistId } = req.query;
   if (!playlistId) return res.sendStatus(403);
-  let playlist = await AppDataSource.getRepository(Playlist).findOneBy({
-    id: parseInt(playlistId.toString()),
+  let playlist = await AppDataSource.getRepository(Playlist).findOne({
+    where: {
+      id: parseInt(playlistId.toString()),
+    },
+    relations: {
+      tracks: true,
+    },
   });
-  res.send(playlist);
+  res.send(playlist || 404);
 });
 
 /**

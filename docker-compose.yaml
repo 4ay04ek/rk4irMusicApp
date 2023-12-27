@@ -3,3 +3,20 @@ services:
     build: "./nginx"
     ports:
       - "443:443"
+  db:
+    image: "postgres:latest"
+    ports:
+      - "11111:5432"
+    volumes:
+      - "./db:/docker-entrypoint-initdb.d"
+    environment:
+      POSTGRES_PASSWORD: 1234
+  application:
+    build: "./app"
+    volumes:
+      - "./app/src:/app/src"
+      - "./app/static:/app/static"
+    ports:
+      - "3000"
+    depends_on:
+      - db
